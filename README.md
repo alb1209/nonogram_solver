@@ -1,0 +1,2 @@
+# nonogram_solver
+為了解決nonogram和完成小論文的小程式
