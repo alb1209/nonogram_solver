@@ -63,6 +63,17 @@ class NonoGame:
                 elif cell == 'o':
                     print('🟦', end='')
             print()
+    
+    def is_complete(self):
+        # should not contain "?"
+        # TODO
+        pass
+
+    def is_correct(self):
+        # complete and there's no constraint conflict
+        # TODO
+        pass
+
 
 if __name__ == "__main__":
     # Instantiate (實體化)
