@@ -1,4 +1,6 @@
 from itertools import groupby
+
+
 class NonoGame:
 
     # dunder: double under
@@ -51,10 +53,7 @@ class NonoGame:
 
         # Display Row constraints and puzzle
         # zip([1, 2, 3], [4, 5, 6]) -> [(1, 4), (2, 5), (3, 6)]
-        recent_row_constraint = [[0] * self.n]
-        recent_col_constraint = [[0] * self.m]
-
-        for row_idx, row_constraint, row in enumerate(zip(self.row_constraints, self.puzzle)):
+        for row_idx, (row_constraint, row) in enumerate(zip(self.row_constraints, self.puzzle)):
             row_constraint_str = ' '.join(map(str, row_constraint))
             print("　" * (ROW_LENGTH - len(row_constraint_str)), end='')
             for ch in row_constraint_str:
@@ -65,25 +64,12 @@ class NonoGame:
             for col_idx, cell in enumerate(row):
                 if cell == 'o':
                     print('🟦', end='')
-                    recent_col_constraint[col_idx][-1] += 1
-                    recent_row_constraint[row_idx][-1] += 1
                 else:
-                    if recent_col_constraint[col_idx][-1] != 0:
-                        recent_col_constraint[col_idx].append(0)
-                    if recent_row_constraint[row_idx][-1] != 0:
-                        recent_row_constraint[row_idx].append(0)
                     if cell == 'x':
                         print('⬜', end='')
                     elif cell == '?':
                         print('❓', end='')
                         self.completed = False
-                if recent_row_constraint[row_idx][-1] == 0:
-                    recent_row_constraint[row_idx].pop(-1)
-            for i in range(self.m):
-                if recent_col_constraint[i][-1] == 0:
-                    recent_col_constraint[i].pop(-1)
-            if self.completed and recent_col_constraint == col_constraint and recent_row_constraint == row_constraint:
-                self.correct == True
             print()
 
     def is_complete(self):
@@ -103,7 +89,7 @@ class NonoGame:
 
         if "?" in line:
             return False
-        
+
         rle = []
         for c in line:
             if not rle or rle[-1][0] != c:
@@ -112,7 +98,7 @@ class NonoGame:
                 rle[-1][1] += 1
 
         return constaint == [len(list(v)) for k, v in groupby(line) if k == 'o']
-        
+
     def is_correct(self):
         """Check if the puzzle is correct.
 
@@ -145,4 +131,3 @@ if __name__ == "__main__":
     ]
     gameA.print()
     print(gameA.is_correct())
-
