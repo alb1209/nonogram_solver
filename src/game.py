@@ -4,24 +4,29 @@ from itertools import groupby
 class NonoGame:
 
     # dunder: double under
-    def __init__(self, filepath):
+    def __init__(self, filepath=None, constaints=None):
         # r - read (default)
         # w - write
-        self.row_constraints = []
-        self.col_constraints = []
-        # ~= fin = open(filepath)
-        with open(filepath) as fin:
-            n, m = map(int, fin.readline().strip().split())
-            self.n, self.m = n, m
-            print(n, m)
-            # Row contraints
-            for _ in range(n):
-                tmp = list(map(int, fin.readline().strip().split()))
-                self.row_constraints.append(tmp)
-            # Column contraints
-            for _ in range(m):
-                tmp = list(map(int, fin.readline().strip().split()))
-                self.col_constraints.append(tmp)
+        if filepath is None and constaints is None:
+            raise ValueError("At least one of filepath and constaints must be provided")
+        if filepath is not None:
+            self.row_constraints = []
+            self.col_constraints = []
+            # ~= fin = open(filepath)
+            with open(filepath) as fin:
+                n, m = map(int, fin.readline().strip().split())
+                self.n, self.m = n, m
+                # Row contraints
+                for _ in range(n):
+                    tmp = list(map(int, fin.readline().strip().split()))
+                    self.row_constraints.append(tmp)
+                # Column contraints
+                for _ in range(m):
+                    tmp = list(map(int, fin.readline().strip().split()))
+                    self.col_constraints.append(tmp)
+        else:
+            self.row_constraints = constaints[0]
+            self.col_constraints = constaints[1]
 
         self.puzzle = [['?' for _ in range(m)] for _ in range(n)]
         self.completed = True
@@ -37,7 +42,7 @@ class NonoGame:
         column_display = [[' ' for _ in range(self.m)]
                           for _ in range(COL_LENGTH)]
         for col_idx, col_constraint in enumerate(self.col_constraints):
-            col_constraint_str = ' '.join(map(str, col_constraint))
+            col_constraint_str = ' '.join(map(str, col_constraint[::-1]))
             for row_idx, ch in zip(range(COL_LENGTH-1, -1, -1), col_constraint_str):
                 column_display[row_idx][col_idx] = ch
                 col_display_begin = min(col_display_begin, row_idx)
@@ -76,7 +81,8 @@ class NonoGame:
         # should not contain "?"
         return not any(any(ch == '?' for ch in row) for row in self.puzzle)
 
-    def constraint_match(self, constaint, line):
+    @staticmethod
+    def constraint_match(constaint, line):
         """ Check if a given line matches a constraint
 
         Args:
@@ -96,7 +102,8 @@ class NonoGame:
                 rle.append([c, 1])
             else:
                 rle[-1][1] += 1
-
+        if constaint == [0]:
+            constaint = []
         return constaint == [len(list(v)) for k, v in groupby(line) if k == 'o']
 
     def is_correct(self):
@@ -123,10 +130,10 @@ if __name__ == "__main__":
     # Instantiate (實體化)
     gameA = NonoGame("../testcases/5x5/0.in")
     gameA.puzzle = [
-        ['o', 'o', 'o', 'x', 'x'],
-        ['x', 'o', 'o', 'o', 'x'],
-        ['x', 'x', 'o', 'o', 'o'],
-        ['o', 'x', 'x', 'o', 'o'],
+        ['x', 'o', 'x', 'x', 'o'],
+        ['x', 'o', 'x', 'x', 'x'],
+        ['x', 'x', 'x', 'x', 'x'],
+        ['x', 'o', 'x', 'x', 'x'],
         ['x', 'x', 'x', 'x', 'o'],
     ]
     gameA.print()
