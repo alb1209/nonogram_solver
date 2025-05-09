@@ -20,17 +20,20 @@ class NonoGame:
             for _ in range(m):
                 tmp = list(map(int, fin.readline().strip().split()))
                 self.col_constraints.append(tmp)
-        
+
         self.puzzle = [['?' for _ in range(m)] for _ in range(n)]
+        self.completed = True
+        self.correct = False
         # self.n, self.m = 5, 5
-    
+
     def print(self):
         COL_LENGTH = 15
         ROW_LENGTH = 15
 
         # Display Column constraints
         col_display_begin = COL_LENGTH
-        column_display = [[' ' for _ in  range(self.m)] for _ in range(COL_LENGTH)]
+        column_display = [[' ' for _ in range(self.m)]
+                          for _ in range(COL_LENGTH)]
         for col_idx, col_constraint in enumerate(self.col_constraints):
             col_constraint_str = ' '.join(map(str, col_constraint))
             for row_idx, ch in zip(range(COL_LENGTH-1, -1, -1), col_constraint_str):
@@ -46,9 +49,12 @@ class NonoGame:
                     print("０１２３４５６７８９"[int(ch)], end='')
             print()
 
-        # Display Row constraints and puzzle            
+        # Display Row constraints and puzzle
         # zip([1, 2, 3], [4, 5, 6]) -> [(1, 4), (2, 5), (3, 6)]
-        for row_constraint, row in zip(self.row_constraints, self.puzzle):
+        recent_row_constraint = [[0] * self.n]
+        recent_col_constraint = [[0] * self.m]
+
+        for row_idx, row_constraint, row in enumerate(zip(self.row_constraints, self.puzzle)):
             row_constraint_str = ' '.join(map(str, row_constraint))
             print("　" * (ROW_LENGTH - len(row_constraint_str)), end='')
             for ch in row_constraint_str:
@@ -56,15 +62,30 @@ class NonoGame:
                     print("　", end='')
                 else:
                     print("０１２３４５６７８９"[int(ch)], end='')
-            for cell in row:
-                if cell == '?':
-                    print('❓', end='')
-                elif cell == 'x':
-                    print('⬜', end='')
-                elif cell == 'o':
+            for col_idx, cell in enumerate(row):
+                if cell == 'o':
                     print('🟦', end='')
+                    recent_col_constraint[col_idx][-1] += 1
+                    recent_row_constraint[row_idx][-1] += 1
+                else:
+                    if recent_col_constraint[col_idx][-1] != 0:
+                        recent_col_constraint[col_idx].append(0)
+                    if recent_row_constraint[row_idx][-1] != 0:
+                        recent_row_constraint[row_idx].append(0)
+                    if cell == 'x':
+                        print('⬜', end='')
+                    elif cell == '?':
+                        print('❓', end='')
+                        self.completed = False
+                if recent_row_constraint[row_idx][-1] == 0:
+                    recent_row_constraint[row_idx].pop(-1)
+            for i in range(self.m):
+                if recent_col_constraint[i][-1] == 0:
+                    recent_col_constraint[i].pop(-1)
+            if self.completed and recent_col_constraint == col_constraint and recent_row_constraint == row_constraint:
+                self.correct == True
             print()
-    
+
     def is_complete(self):
         # should not contain "?"
         return not any(any(ch == '?' for ch in row) for row in self.puzzle)
