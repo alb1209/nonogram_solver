@@ -1,3 +1,4 @@
+from itertools import groupby
 class NonoGame:
 
     # dunder: double under
@@ -66,13 +67,49 @@ class NonoGame:
     
     def is_complete(self):
         # should not contain "?"
-        # TODO
-        pass
+        return not any(any(ch == '?' for ch in row) for row in self.puzzle)
 
+    def constraint_match(self, constaint, line):
+        """ Check if a given line matches a constraint
+
+        Args:
+            constaint (list of int): constraint
+            line (list of str): line to check
+
+        Returns:
+            bool: whether the line matches the constraint
+        """
+
+        if "?" in line:
+            return False
+        
+        rle = []
+        for c in line:
+            if not rle or rle[-1][0] != c:
+                rle.append([c, 1])
+            else:
+                rle[-1][1] += 1
+
+        return constaint == [len(list(v)) for k, v in groupby(line) if k == 'o']
+        
     def is_correct(self):
-        # complete and there's no constraint conflict
-        # TODO
-        pass
+        """Check if the puzzle is correct.
+
+        A puzzle is correct if it's complete and there's no constraint conflict.
+
+        Returns:
+            bool: whether the puzzle is correct
+        """
+
+        for constraint, row in zip(self.row_constraints, self.puzzle):
+            if not self.constraint_match(constraint, row):
+                return False
+
+        for col_idx, col_constraint in enumerate(self.col_constraints):
+            col = [row[col_idx] for row in self.puzzle]
+            if not self.constraint_match(col_constraint, col):
+                return False
+        return True
 
 
 if __name__ == "__main__":
@@ -80,10 +117,11 @@ if __name__ == "__main__":
     gameA = NonoGame("../testcases/5x5/0.in")
     gameA.puzzle = [
         ['o', 'o', 'o', 'x', 'x'],
-        ['x', '?', '?', '?', 'x'],
+        ['x', 'o', 'o', 'o', 'x'],
         ['x', 'x', 'o', 'o', 'o'],
-        ['o', 'x', 'x', '?', 'o'],
+        ['o', 'x', 'x', 'o', 'o'],
         ['x', 'x', 'x', 'x', 'o'],
     ]
     gameA.print()
+    print(gameA.is_correct())
 
