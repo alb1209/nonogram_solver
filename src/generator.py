@@ -25,13 +25,20 @@ def random_generator(filepath, n, m, prob=0.2):
                 col = [0]
             print(' '.join(map(str, col)), file=fin)
 
-def generate_all_5x5(n_testcases):
+import os
+def random_generate(n_testcases, n, m):
     for i in range(n_testcases):
-        random_generator(f"../testcases/5x5/{i}.in", 5, 5, prob=(i+1)/(n_testcases+1))
+        os.makedirs(f"../testcases/{n}x{m}", exist_ok=True)
+        random_generator(f"../testcases/{n}x{m}/{i}.in", n, m, prob=(i+1)/(n_testcases+1))
 
 def main():
     random.seed("Live a life you will remember")
-    generate_all_5x5(5)
+    random_generate(5, 5, 5)
+    random_generate(5, 7, 7)
+    random_generate(5, 8, 8)
+    random_generate(5, 10, 10)
+    random_generate(5, 15, 15)
+    random_generate(5, 20, 20)
 
 if __name__ == "__main__":
     main()
