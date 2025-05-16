@@ -88,3 +88,16 @@ def brute_force_v3(game: NonoGame):
             break
     game.print()
     return search_count
+
+def backtracking(game: NonoGame):
+    search_count = 0
+    def dfs(game: NonoGame, pos: int):
+        nonlocal search_count
+        search_count += 1
+
+        if pos == game.n * game.m:
+            return True
+        x, y = pos // game.m, pos % game.m
+
+    dfs(game, 0)
+    return 
