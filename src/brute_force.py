@@ -89,9 +89,38 @@ def brute_force_v3(game: NonoGame):
     game.print()
     return search_count
 
+def checking_element_in_right_pos(game: NonoGame, puzzle: list, x, y):
+    row, correct_row = puzzle[x], game.row_constraints[x]
+    col, correct_col = puzzle[y], game.col_constraints[y]
+
+    correct_row.append("x")
+    correct_col.append("x")
+
+    i = 0
+    for ele in row:
+        if ele == "o":
+            if i == len(correct_row):
+                return False
+            correct_row[i] -= 1
+        else:
+            if correct_row[i] != 0:
+                return False
+    
+    j = 0
+    for ele in col:
+        if ele == "o":
+            if j ==len(correct_col):
+                return False
+            correct_col[j] -= 1
+        else:
+            if correct_col[j] != 0:
+                return False
+    return True
+
+
 def backtracking(game: NonoGame):
     search_count = 0
-    def dfs(game: NonoGame, pos: int):
+    def dfs(game: NonoGame, pos: int, puzzle: list):
         nonlocal search_count
         search_count += 1
 
@@ -99,5 +128,17 @@ def backtracking(game: NonoGame):
             return True
         x, y = pos // game.m, pos % game.m
 
-    dfs(game, 0)
+        for ele in range(2):
+            if ele: puzzle[x][y] = "o"
+            else: puzzle[x][y] = "x"
+            
+            if not checking_element_in_right_pos(game, puzzle, x, y):
+                return False
+
+            if dfs(game, pos + 1, puzzle):
+                return True
+            return False
+
+    puz = [[0] * 9 for i in range(9)]
+    dfs(game, 0, puz)
     return 
