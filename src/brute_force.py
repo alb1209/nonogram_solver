@@ -51,6 +51,7 @@ def brute_force_v2(game: NonoGame):
 
 def generate_all_possibility_given_row(row_constraint, m):
     total_result = []
+
     def rec(row_top, current, current_len):
         if current_len > m:
             return
@@ -65,7 +66,8 @@ def generate_all_possibility_given_row(row_constraint, m):
         for i in range(0 if current_len == 0 else 1, m):
             current.append('x' * i)
             current.append('o' * row_constraint[row_top])
-            rec(row_top + 1, current, current_len + i + row_constraint[row_top])
+            rec(row_top + 1, current, current_len +
+                i + row_constraint[row_top])
             current.pop()
             current.pop()
     rec(0, [], 0)
@@ -89,15 +91,13 @@ def brute_force_v3(game: NonoGame):
     game.print()
     return search_count
 
+
 def checking_element_in_right_pos(game: NonoGame, puzzle: list, x, y):
     row, correct_row = puzzle[x], game.row_constraints[x]
     col, correct_col = puzzle[y], game.col_constraints[y]
 
-    correct_row.append("x")
-    correct_col.append("x")
-
     i = 0
-    for ele in row:
+    for ele in row[:y + 1]:
         if ele == "o":
             if i == len(correct_row):
                 return False
@@ -105,21 +105,27 @@ def checking_element_in_right_pos(game: NonoGame, puzzle: list, x, y):
         else:
             if correct_row[i] != 0:
                 return False
-    
+    if correct_row[i] < 0:
+                return False
+
     j = 0
-    for ele in col:
+
+    for ele in col[:x + 1]:
         if ele == "o":
-            if j ==len(correct_col):
+            if j == len(correct_col):
                 return False
             correct_col[j] -= 1
         else:
             if correct_col[j] != 0:
+                return False
+    if correct_col[j] < 0:
                 return False
     return True
 
 
 def backtracking(game: NonoGame):
     search_count = 0
+
     def dfs(game: NonoGame, pos: int, puzzle: list):
         nonlocal search_count
         search_count += 1
@@ -129,9 +135,11 @@ def backtracking(game: NonoGame):
         x, y = pos // game.m, pos % game.m
 
         for ele in range(2):
-            if ele: puzzle[x][y] = "o"
-            else: puzzle[x][y] = "x"
-            
+            if ele:
+                puzzle[x][y] = "o"
+            else:
+                puzzle[x][y] = "x"
+
             if not checking_element_in_right_pos(game, puzzle, x, y):
                 return False
 
@@ -141,4 +149,4 @@ def backtracking(game: NonoGame):
 
     puz = [[0] * 9 for i in range(9)]
     dfs(game, 0, puz)
-    return 
+    return
