@@ -92,9 +92,9 @@ def brute_force_v3(game: NonoGame):
     return search_count
 
 
-def checking_element_in_right_pos(game: NonoGame, puzzle: list, x, y):
-    row, correct_row = puzzle[x], game.row_constraints[x]
-    col, correct_col = puzzle[y], game.col_constraints[y]
+def checking_element_in_right_pos(game: NonoGame, x, y):
+    row, correct_row = game.puzzle[x], game.row_constraints[x]
+    col, correct_col = game.puzzle[y], game.col_constraints[y]
 
     i = 0
     for ele in row[:y + 1]:
@@ -106,7 +106,7 @@ def checking_element_in_right_pos(game: NonoGame, puzzle: list, x, y):
             if correct_row[i] != 0:
                 return False
     if correct_row[i] < 0:
-                return False
+        return False
 
     j = 0
 
@@ -119,14 +119,14 @@ def checking_element_in_right_pos(game: NonoGame, puzzle: list, x, y):
             if correct_col[j] != 0:
                 return False
     if correct_col[j] < 0:
-                return False
+        return False
     return True
 
 
 def backtracking(game: NonoGame):
     search_count = 0
 
-    def dfs(game: NonoGame, pos: int, puzzle: list):
+    def dfs(game: NonoGame, pos: int):
         nonlocal search_count
         search_count += 1
 
@@ -136,17 +136,18 @@ def backtracking(game: NonoGame):
 
         for ele in range(2):
             if ele:
-                puzzle[x][y] = "o"
+                game.puzzle[x][y] = "o"
             else:
-                puzzle[x][y] = "x"
+                game.puzzle[x][y] = "x"
 
-            if not checking_element_in_right_pos(game, puzzle, x, y):
+            if not checking_element_in_right_pos(game, x, y):
                 return False
 
-            if dfs(game, pos + 1, puzzle):
+            if dfs(game, pos + 1):
                 return True
-            return False
+            game.puzzle[x][y] = "."
+        return False
 
-    puz = [[0] * 9 for i in range(9)]
-    dfs(game, 0, puz)
-    return
+    
+    dfs(game, 0)
+    return search_count

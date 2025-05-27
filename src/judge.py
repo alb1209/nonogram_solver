@@ -10,8 +10,8 @@ def test(solver: callable, n, m):
         print(f"{test_case:30s} Cost: {end-start : 8.2f}s State Cnt: {search_count:10d} Judge: {game.is_correct()}")
 
 def main():
-    from brute_force import brute_force_v3, brute_force_v2, brute_force_v1
-    test(brute_force_v3, 8, 8)
+    from brute_force import backtracking, brute_force_v3
+    test(backtracking, 8, 8)
 
 if __name__ == "__main__": 
     main()
