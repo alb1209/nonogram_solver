@@ -93,33 +93,57 @@ def brute_force_v3(game: NonoGame):
 
 
 def checking_element_in_right_pos(game: NonoGame, x, y):
-    row, correct_row = game.puzzle[x], game.row_constraints[x]
-    col, correct_col = game.puzzle[y], game.col_constraints[y]
+    cur_row, cur_col= game.puzzle[x], game.puzzle[y]
+    correct_row, correct_col = game.row_constraints[x]+[0], game.col_constraints[y]+[0]
 
+    check = 0
     i = 0
-    for ele in row[:y + 1]:
+    for ele in cur_row:
+        if i > len(correct_row):
+            return False
+        if check > correct_row[i]: #i==len(...) => RE
+            return False
+
+        if ele == "?":
+            break
+
         if ele == "o":
-            if i == len(correct_row):
-                return False
-            correct_row[i] -= 1
+            check += 1
+        elif check != 0 and check < correct_row[i]:
+            return False
+        elif correct_row[i]==0:
+            continue
         else:
-            if correct_row[i] != 0:
-                return False
-    if correct_row[i] < 0:
+            i += 1
+            check = 0
+
+    if "?" not in cur_row and i!=len(correct_row)-1:
         return False
 
-    j = 0
+    check = 0
+    i = 0
+    for ele in cur_col:
+        if i > len(correct_col):
+            return False
+        if check > correct_col[i]:
+            return False
+       
+        if ele == "?":
+            break
 
-    for ele in col[:x + 1]:
         if ele == "o":
-            if j == len(correct_col):
-                return False
-            correct_col[j] -= 1
+            check += 1
+        elif check != 0 and check < correct_col[i]:
+            return False
+        elif correct_col[i]==0:
+            continue
         else:
-            if correct_col[j] != 0:
-                return False
-    if correct_col[j] < 0:
+            i += 1
+            check = 0
+
+    if "?" not in cur_col and i!=len(correct_col)-1:
         return False
+    
     return True
 
 
@@ -136,18 +160,17 @@ def backtracking(game: NonoGame):
 
         for ele in range(2):
             if ele:
-                game.puzzle[x][y] = "o"
-            else:
                 game.puzzle[x][y] = "x"
+            else:
+                game.puzzle[x][y] = "o"
 
-            if not checking_element_in_right_pos(game, x, y):
-                return False
 
-            if dfs(game, pos + 1):
+
+            if checking_element_in_right_pos(game, x, y) and dfs(game, pos + 1):
                 return True
-            game.puzzle[x][y] = "."
+            game.puzzle[x][y] = "?"
         return False
-
     
     dfs(game, 0)
+    print(game.puzzle)
     return search_count
