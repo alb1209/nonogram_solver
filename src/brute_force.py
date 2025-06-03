@@ -92,60 +92,70 @@ def brute_force_v3(game: NonoGame):
     return search_count
 
 
+
+
+
+
+
 def checking_element_in_right_pos(game: NonoGame, x, y):
-    cur_row, cur_col= game.puzzle[x], game.puzzle[y]
-    correct_row, correct_col = game.row_constraints[x]+[0], game.col_constraints[y]+[0]
-
-    check = 0
-    i = 0
-    for ele in cur_row:
-        if i > len(correct_row):
-            return False
-        if check > correct_row[i]: #i==len(...) => RE
-            return False
-
-        if ele == "?":
-            break
-
-        if ele == "o":
-            check += 1
-        elif check != 0 and check < correct_row[i]:
-            return False
-        elif correct_row[i]==0:
-            continue
+    def get_nums(line):
+        nums, cnt = [], 0
+        lsts = 0
+        for ch in line:
+            if ch == 'o':
+                cnt += 1
+            elif ch == 'x':
+                if cnt:
+                    nums.append(cnt)
+                    cnt = 0
+            else:
+                lsts = cnt
+                break
         else:
-            i += 1
-            check = 0
+            if cnt:
+                nums.append(cnt)
 
-    if "?" not in cur_row and i!=len(correct_row)-1:
-        return False
+        return nums, lsts
 
-    check = 0
-    i = 0
-    for ele in cur_col:
-        if i > len(correct_col):
-            return False
-        if check > correct_col[i]:
-            return False
-       
-        if ele == "?":
-            break
 
-        if ele == "o":
-            check += 1
-        elif check != 0 and check < correct_col[i]:
+    def is_prefix(nums, cons):
+        if len(nums) > len(cons):
             return False
-        elif correct_col[i]==0:
-            continue
+        
+        for i in range(len(nums)):
+            if nums[i] != cons[i]:
+                return False
+            
+        return True
+
+
+    def can_fit(line, cons):
+        nums, lsts = get_nums(line)
+        if not is_prefix(nums, cons):
+            return False
+        
+
+        id = len(nums)
+        if lsts:
+            if id>=len(cons) or lsts>cons[id]:
+                return False
+            rem = [cons[id]-lsts] + cons[id+1:]
         else:
-            i += 1
-            check = 0
+            rem = cons[id:]
+        if not rem:
+            return True
+        need = sum(rem)+len(rem)-1
 
-    if "?" not in cur_col and i!=len(correct_col)-1:
-        return False
-    
-    return True
+        return line.count('?') >= need
 
+
+
+    cur_row, cur_col= game.puzzle[x], [game.puzzle[r][y] for r in range(game.n)]
+    correct_row, correct_col = game.row_constraints[x], game.col_constraints[y]
+
+    return can_fit(cur_row, correct_row) and can_fit(cur_col, correct_col)
+
+ 
 
 def backtracking(game: NonoGame):
     search_count = 0
@@ -174,3 +184,6 @@ def backtracking(game: NonoGame):
     dfs(game, 0)
     print(game.puzzle)
     return search_count
+
+
+ 
