@@ -92,11 +92,6 @@ def brute_force_v3(game: NonoGame):
     return search_count
 
 
-
-
-
-
-
 def checking_element_in_right_pos(game: NonoGame, x, y):
     def get_nums(line):
         nums, cnt = [], 0
@@ -117,27 +112,24 @@ def checking_element_in_right_pos(game: NonoGame, x, y):
 
         return nums, lsts
 
-
     def is_prefix(nums, cons):
         if len(nums) > len(cons):
             return False
-        
+
         for i in range(len(nums)):
             if nums[i] != cons[i]:
                 return False
-            
-        return True
 
+        return True
 
     def can_fit(line, cons):
         nums, lsts = get_nums(line)
         if not is_prefix(nums, cons):
             return False
-        
 
         id = len(nums)
         if lsts:
-            if id>=len(cons) or lsts>cons[id]:
+            if id >= len(cons) or lsts > cons[id]:
                 return False
             rem = [cons[id]-lsts] + cons[id+1:]
         else:
@@ -148,14 +140,12 @@ def checking_element_in_right_pos(game: NonoGame, x, y):
 
         return line.count('?') >= need
 
-
-
-    cur_row, cur_col= game.puzzle[x], [game.puzzle[r][y] for r in range(game.n)]
+    cur_row, cur_col = game.puzzle[x], [
+        game.puzzle[r][y] for r in range(game.n)]
     correct_row, correct_col = game.row_constraints[x], game.col_constraints[y]
 
     return can_fit(cur_row, correct_row) and can_fit(cur_col, correct_col)
 
- 
 
 def backtracking(game: NonoGame):
     search_count = 0
@@ -174,16 +164,11 @@ def backtracking(game: NonoGame):
             else:
                 game.puzzle[x][y] = "o"
 
-
-
             if checking_element_in_right_pos(game, x, y) and dfs(game, pos + 1):
                 return True
             game.puzzle[x][y] = "?"
         return False
-    
+
     dfs(game, 0)
     print(game.puzzle)
     return search_count
-
-
- 
