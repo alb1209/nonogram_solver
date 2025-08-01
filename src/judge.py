@@ -11,7 +11,7 @@ def test(solver: callable, n, m):
 
 def main():
     from brute_force import backtracking, brute_force_v3, brute_force_v2, brute_force_v1
-    test(backtracking, 5, 5)
+    test(backtracking, 15, 15)
 
 if __name__ == "__main__": 
     main()

@@ -172,3 +172,22 @@ def backtracking(game: NonoGame):
     dfs(game, 0)
     print(game.puzzle)
     return search_count
+
+def bactracking_v2(game: NonoGame):
+    #　先搜尋已經確定的答案，直到沒有一個答案可以確定後，在隨機猜一個答案
+
+
+    def dfs(game: NonoGame):
+        
+        if game.is_complete():
+            return True
+        
+        # Find all possibilities in each uncertain block.
+        
+        # If there's one block has no possibility, return False.
+        
+        # While there's one block has only one possibility, fill it.
+
+        # If there's no block has only one possibility, guess it and do next round.
+        
+    return 
