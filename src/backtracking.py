@@ -39,7 +39,7 @@ def backtracking_v2(game: NonoGame):
             return game[x][y]
         else:
             row_possible = set()
-            for possible_row in generate_all_possibility_given_row(game.row_constraints[x], game.m):
+            for possible_row in generate_all_possibility_given_constaints(game.row_constraints[x], game.m):
                 flag = True
                 for a, b in zip(possible_row, game[x]):
                     if b != '?' and a != b:
@@ -49,7 +49,7 @@ def backtracking_v2(game: NonoGame):
             
             col_possible = set()
             game_col_y = [game[i][y] for i in range(game.n)]
-            for possible_col in generate_all_possibility_given_row(game.col_constraints[y], game.n):
+            for possible_col in generate_all_possibility_given_constaints(game.col_constraints[y], game.n):
                 flag = True
                 for a, b in zip(possible_col, game_col_y):
                     if b != '?' and a != b:
@@ -57,49 +57,6 @@ def backtracking_v2(game: NonoGame):
                 if flag:
                     col_possible.add(possible_col[x])
             return list(row_possible & col_possible)
-
-    # def check_possibilities(game, pos, row_col):
-    #     x, y = pos // game.m, pos % game.m
-    #     if row_col:
-    #         for i in range(x * game.m, pos):
-    #             dfs(game, i, True, False)
-    #     else:
-    #         for i in range(x):
-    #             dfs(game, game.m * i + y, False, True)
-
-    # def dfs(game: NonoGame, pos: int, row: bool, col: bool):
-
-    #     x, y = pos // game.m, pos % game.m
-    #     if game.puzzle[x][y] != "?":
-    #         return True
-
-    #     # Find all possibilities in each uncertain block.
-    #     possibilities = find_possibilities(pos)
-
-    #     # If there's one block has no possibility, return False.
-    #     if not possibilities:
-    #         return False
-    #     # While there's one block has only one possibility, fill it.
-    #     elif len(possibilities) == 1:
-    #         game.puzzle[x][y] = possibilities[0]
-    #         if row == col == True:
-    #             check_possibilities(pos, True)
-    #             check_possibilities(pos, False)
-    #             return dfs(game, pos + 1, True, True)
-    #         return check_possibilities(pos, not row)
-    #     # If there's no block has only one possibility, guess it and do next round.
-    #     else:
-    #         if row == col == True:
-    #             dfs(game, pos + 1, True, True)
-    #         elif row or col:
-    #             return True
-
-    #         for i in ["o", "x"]:
-    #             game.puzzle[x][y] = i
-    #             check = check_possibilities(
-    #                 pos, True) and check_possibilities(pos, False)
-    #             if check:
-    #                 return True
 
     def _recover(game: NonoGame, history_place: List[int]):
         for x, y in history_place:
@@ -145,4 +102,12 @@ def backtracking_v2(game: NonoGame):
     game.print()
     return search_count
 
-
+def backtracking_v3(game: NonoGame):
+    # 1. 每一個position就呼叫 generate_all_possibility_given_constaints() 實在是太慢了，
+    #    因為你要刪除跟現在盤面所牴觸的可能，每個row跟每個col只要做一次就好，所以請你修改整個城市碼，
+    #    使得同個row / col的限制只需要算一次就好。
+    #    O(nm(2^n+2^m)) -> O(n2^n + m2^m)
+    # 2. generate_all_possibility_given_constaints 實在是太慢了，直接給現在的盤面跟限制，產生出來她的所有可能
+    # 3. 這個 (盤面 -> 所有可能) 的轉換可以用 memoization (記憶化) 來儲存
+    pass
+    # return backtracking_v2(game)
