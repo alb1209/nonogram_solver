@@ -1,11 +1,12 @@
 from game import NonoGame
 from itertools import product
-from itertools import batched, permutations
+from itertools import permutations
 from util import *
 
 
 def brute_force_v1(game: NonoGame):
     search_count = 0
+    from itertools import batched
     for idx, trial in enumerate(product(*["ox" for _ in range(25)])):
         guess = list(batched(trial, 5))
         game.puzzle = guess
