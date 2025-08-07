@@ -32,6 +32,9 @@ class NonoGame:
         self.completed = True
         self.correct = False
         # self.n, self.m = 5, 5
+    
+    def __getitem__(self, pos):
+        return self.puzzle[pos]
 
     def print(self):
         COL_LENGTH = 15
