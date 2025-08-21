@@ -114,7 +114,79 @@ def generate_all_possibility_given_constaints(constraint: List[int], block_size:
     rec(0, [], 0)
     return total_result
 
-
 def generate_all_possibility_given_constaints_and_board(constraint: List[int], current_boad: List[str]):
-    # 根據現在的盤面，算出可能的所有排列
-    pass
+    size = len(current_boad)
+    con_size = len(constraint)
+    total_result = []
+    # needed_space = [0] * (con_size + 1)
+    # for i in range(1, con_size + 1):
+    #     needed_space[i] = needed_space[i - 1] + constraint[con_size - i] + 1
+    # needed_space[-1] -= 1
+    # needed_space.reverse()
+    # needed_space.pop(-1)
+
+    def rec(row_top: int, current: List[str], current_len: int):
+        
+        
+        # 當所有 constraint 區段都放完後
+        if row_top == con_size:
+            # 若剩餘格數大於 0，就補足剩下的空白格並加入結果
+            if size - current_len > 0:
+                result = current + ['x' * (size - current_len)]
+            else:
+                result = current
+            # 把拼完的字串片段 join 後，拆成單格字元列表存入 total_result
+            total_result.append(list("".join(result)))
+            return
+
+        # 對於第 row_top 個區段，決定「空白」的格數
+        # 第一個區段前可以是 0 格空白，其後每個區段前至少要 1 格空白
+        
+        for i in range(0 if current_len == 0 else 1, size):
+            end = current_len + i + constraint[row_top]
+
+            # if size - end < needed_space[row_top]:
+            #     continue
+            
+            if "o" in current_boad[current_len: current_len + i] or "x" in current_boad[current_len + i: end]:
+                continue
+            
+            # 加入 i 格空白
+            current.append('x' * i)
+            # 加入 constraint[row_top] 格實心
+            current.append('o' * constraint[row_top])
+            # 遞迴到下一個區段，更新已用長度
+            rec(
+                row_top + 1,
+                current,
+                end
+            )
+            # 回溯：彈出剛才加的實心與空白
+            current.pop()
+            current.pop()
+
+    rec(0, [], 0)
+    return total_result
+
+
+
+def generate_all_possibility_given_constaints_and_board_v2(constraint: List[int], current_boad: List[str], memories: List[str]):
+    re_memory = []
+    his_memory = []
+    have_patern = {}
+
+    for i, patern in enumerate(current_boad):
+        if patern != "?":
+            have_patern[i] = patern
+    
+    
+    for memory in memories:
+        for pos, patern in have_patern.items():
+            if memory[pos] != patern:
+                his_memory.append(memory)
+                break
+        else:
+            re_memory.append(memory)
+
+                
+    return re_memory, his_memory

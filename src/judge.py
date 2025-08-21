@@ -12,7 +12,7 @@ def test(solver: callable, n, m):
         print(f"{test_case:30s} Cost: {end-start : 8.2f}s State Cnt: {search_count:10d} Judge: {game.is_correct()}")
 
 def main():
-    test(backtracking_v3, 5, 5)
+    test(backtracking_v3, 15, 15)
 
-if __name__ == "__main__": 
+if __name__ == "__main__":
     main()

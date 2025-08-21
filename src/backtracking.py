@@ -123,6 +123,8 @@ def backtracking_v3(game: NonoGame):
             nonlocal memory_col
             all_possibility = memory_col[pos]
             line = [game[i][pos] for i in range(game.n)]
+            # if pos == 2:
+            #     print(line, all_possibility)
 
         possibilities = [set() for _ in range(len(line))]
         for possible_line in all_possibility:
@@ -133,6 +135,7 @@ def backtracking_v3(game: NonoGame):
             if flag:
                 for i in range(len(line)):
                     possibilities[i].add(possible_line[i])
+        #print(possibilities)
         return possibilities
     
 
@@ -155,7 +158,14 @@ def backtracking_v3(game: NonoGame):
 
         return [history_memory_row, x], [history_memory_col, y]
 
-    def _recover(game: NonoGame, history_place: List[int]):
+    def _recover(game: NonoGame, history_place: List[int], history_memory_row: List, history_memory_col: List):
+
+        for memory, pos in history_memory_row:
+            memory_row[pos].extend(memory)
+
+        for memory, pos in history_memory_col:
+            memory_col[pos].extend(memory)
+        
         for x, y in history_place:
             game.puzzle[x][y] = "?"
 
@@ -163,6 +173,8 @@ def backtracking_v3(game: NonoGame):
     search_count = 0
     def _dfs(game: NonoGame):
         nonlocal search_count, memory_row, memory_col
+        #print(memory_row)
+        #print(memory_col)
         search_count += 1
         history_place = []
         # Find all possibilities in each uncertain block.
@@ -182,9 +194,11 @@ def backtracking_v3(game: NonoGame):
             for y in range(game.m):
                 # print(pos_row, pos_col)
                 possibilities = list(pos_row[x][y] & pos_col[y][x])
+                if game[x][y] != "?":
+                    continue
                 if len(possibilities) == 0:
                     # If there's one block has no possibility, return False.
-                    _recover(game, history_place)
+                    _recover(game, history_place, history_memory_row, history_memory_col)
                     return False
                 elif len(possibilities) == 1:
                     # While there's one block has only one possibility, fill it.
@@ -196,11 +210,13 @@ def backtracking_v3(game: NonoGame):
                 else:
                     not_solved.append((x, y))
 
-        # game.print()
+        
+        #print(history_memory_row, history_memory_col)
         # If there's no block has only one possibility, guess it and do next round.
         if len(not_solved) == 0:
             return search_count
         else:
+            #print(not_solved[0])
             x, y = not_solved[0][0], not_solved[0][1]
             history_place.append((x, y))
             
@@ -224,15 +240,114 @@ def backtracking_v3(game: NonoGame):
                 # print(memory_col, ":", history_memory_col)
                 # print(2)
 
-            for memory, pos in history_memory_row:
-                memory_row[pos].extend(memory)
-
-            for memory, pos in history_memory_col:
-                memory_col[pos].extend(memory)
-
-            _recover(game, history_place)
+            
+            #print(history_memory_row, history_memory_col)
+            _recover(game, history_place, history_memory_row, history_memory_col)
             return False
     _dfs(game)
     game.print()
     return search_count
     # return backtracking_v2(game)
+
+
+
+
+
+
+def backtracking_v4(game: NonoGame):
+    # 1. 每一個position就呼叫 generate_all_possibility_given_constaints() 實在是太慢了，
+    #    因為你要刪除跟現在盤面所牴觸的可能，每個row跟每個col只要做一次就好，所以請你修改整個城市碼，
+    #    使得同個row / col的限制只需要算一次就好。
+    #    O(nm(2^n+2^m)) -> O(n2^n + m2^m)
+    # 2. generate_all_possibility_given_constaints 實在是太慢了，直接給現在的盤面跟限制，產生出來她的所有可能
+    # 3. 這個 (盤面 -> 所有可能) 的轉換可以用 memoization (記憶化) 來儲存
+    memory_row = [generate_all_possibility_given_constaints(game.row_constraints[i], game.m) for i in range(game.n)]
+    memory_col = [generate_all_possibility_given_constaints(game.col_constraints[i], game.n) for i in range(game.m)]
+    print(memory_row)
+    print(memory_col)
+    # print(memory_row, len(memory_row))
+    # print(memory_col, len(memory_col))
+    def find_possibilities(game:NonoGame, pos: int, row_col: bool):
+        if row_col:
+            constraints = game.row_constraints[pos]
+            line = game[pos]
+            memories = memory_row[pos]
+        else:
+            constraints = game.col_constraints[pos]
+            line = [game[i][pos] for i in range(game.n)]
+            memories = memory_col[pos]
+        need_change = []
+        all_possibilities, history_memory = generate_all_possibility_given_constaints_and_board_v2(constraints, line, memories)
+        
+        for i in all_possibilities:
+            if len(i) == 1:
+                need_change.append((pos, *i))
+        print(all_possibilities, need_change)
+        return need_change
+    
+
+    
+
+    def _recover(game: NonoGame, history_place: List[int]):
+        for pos in history_place:
+            not_solved.add(pos)
+            x, y = pos // game.m, pos % game.m
+            game.puzzle[x][y] = "?"
+
+    not_solved = set(range(game.m * game.n))
+    search_count = 0
+    def _dfs(game: NonoGame):
+        nonlocal search_count, not_solved
+        search_count += 1
+        history_place = []
+        # Find all possibilities in each uncertain block.
+        
+        change_unit = {}
+        history_memory_row, history_memory_col  = [], []
+        
+        for i in range(game.n):
+            need_change = find_possibilities(game, i, True)
+            for cur, patern in need_change:
+                pos = i * game.m + cur
+                change_unit[pos] = patern
+        
+        for i in range(game.m):
+            need_change = find_possibilities(game, i, False)
+            for cur, patern in need_change:
+                pos = i * game.m + cur
+                if pos in change_unit:
+                    if change_unit[pos] != patern:
+                        return False
+                else:
+                    change_unit[pos] = patern
+        
+        for pos, patern in change_unit.items():
+            x, y = pos // game.m, pos % game.n
+            game.puzzle[x][y] = patern
+            print(pos, x, y, patern)
+            not_solved.remove(pos)
+            history_place.append(pos)
+        game.print()
+        if not_solved:
+            pos = not_solved.pop()
+            history_place.append(pos)
+            x, y = pos // game.m, pos % game.m
+            for i in "ox":
+                game.puzzle[x][y] = i
+                print(i)
+                if _dfs(game):
+                    return search_count
+            _recover(game, history_place)
+            return False
+        return search_count
+            
+
+
+
+    _dfs(game)
+    game.print()
+    return search_count
+    # return backtracking_v2(game)
+
+
+    
